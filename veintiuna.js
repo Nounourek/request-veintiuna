@@ -3,21 +3,34 @@ const sc = require('prompt-sync')();
 let seHaPlantado = false
 let baraja = llenarBaraja()
 baraja = barajar(baraja)
-// console.log('Baraja recién barajada => ', baraja);
 
+const manoCasa = []
 const manoJugador = []
 repartir(2, manoJugador)
+repartir(2, manoCasa)
 console.log('Mano del jugador => ', manoJugador)
-// console.log('Baraja tras repartir al jugador => ',baraja);
+console.log('Mano de la casa => ', ocultarMano(manoCasa))
+
 
 while (!seHaPlantado && !teHasPasao(manoJugador)) {
     jugar()
 }
 
 if (seHaPlantado) {
-    console.log('Tienes un ', sumarValoresMano(manoJugador));
-} else {
-    console.log('Gana la casa chaval');
+    while(sumarValoresMano(manoCasa)<17){
+        jugarCasa()
+    }
+    console.log('Mano del jugador',manoJugador);
+    console.log('Mano de la casa',manoCasa);
+
+    const puntosJugador=sumarValoresMano(manoJugador);
+    const puntosCasa=sumarValoresMano(manoCasa);
+
+    if(puntosCasa > 21 || puntosJugador > puntosCasa){
+        console.log("Ganaste con un total de puntos => ", puntosJugador);
+    }else {
+    console.log('Gana la casa chaval')
+    }   
 }
 
 function sumarValoresMano(mano) {
@@ -31,25 +44,35 @@ function sumarValoresMano(mano) {
 function teHasPasao(mano) {
     return sumarValoresMano(mano) > 21
 }
+function jugarCasa(){
 
+}
 function jugar() {
-    console.log(manoJugador);
+    console.log("Mano actual del jugador",manoJugador);
     const decision = sc('¿Quieres otra? (s/n)')
-    if (decision == 's') {
+    if (decision.toLowerCase()== 's') {
         repartir(1, manoJugador)
-    } else {
+    } else if (decision.toLowerCase() === 'n'){
         seHaPlantado = true
+    }else {
+        console.log("entrada no valida");
     }
 }
 
 function repartir(numCartas, mano) {
     for (let i = 0; i < numCartas; i++) {
+        if(baraja.length>0){
+
+        
         mano.push(baraja.pop())
+    }else {
+        console.log("no hay cartas suficientes");
     }
+}
 }
 
 function barajar(baraja) {
-    return baraja.sort(function(a, b){return 0.5 - Math.random()})
+    return baraja.sort(function (a,b) {return 0.5 - Math.random() });
 }
 
 function llenarBaraja() {
@@ -64,5 +87,15 @@ function llenarBaraja() {
         }
     }
     return cartas
+}
+function jugarCasa(){
+    return repartir(1, manoCasa)
+}
+
+function ocultarMano(mano) {
+    const manoOculta=[...mano];
+    manoOculta[0]='*';
+    return manoOculta;
+    
 }
 
